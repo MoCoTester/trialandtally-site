@@ -29,10 +29,13 @@ Plus `404.html` (bilingual), `styles.css`, `favicon.svg`, `CNAME`.
    external links yet).
 4. Run the checker: `python3 _tools/check_site.py` (must print `OK`).
 
-## Publishing (when ready)
-Create a GitHub repo, push this folder, then Settings → Pages → Deploy from branch `main`,
-root folder. Set the custom domain to `trialandtally.com`, add the DNS records GitHub shows,
-and turn on "Enforce HTTPS".
+## Publishing
+Pushed to https://github.com/MoCoTester/trialandtally-site (branch `main`). GitHub Pages setup
+(source: `main`, root; custom domain `trialandtally.com`; Enforce HTTPS) and the Squarespace DNS
+records are listed step by step in the app repo's `NEEDS-GABE.md` (item 6).
+
+`_review/` (git-ignored) holds plain-text copies of the English Privacy Policy, Terms, and Support
+pages for review.
 
 ## Preview locally
 `python3 -m http.server 8000` in this folder, then open http://localhost:8000.
