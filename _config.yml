@@ -1,0 +1,4 @@
+# GitHub Pages: publish the plain HTML as-is, but not the repo notes or tools.
+exclude:
+  - README.md
+  - _tools
