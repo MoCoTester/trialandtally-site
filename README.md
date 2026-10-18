@@ -35,7 +35,7 @@ Pushed to https://github.com/MoCoTester/trialandtally-site (branch `main`). GitH
 records are listed step by step in the app repo's `NEEDS-GABE.md` (item 6).
 
 `_review/` (git-ignored) holds plain-text copies of the English Privacy Policy, Terms, and Support
-pages for review.
+pages for review. Regenerate them after editing a page: `python3 _tools/make_review.py`.
 
 ## Preview locally
 `python3 -m http.server 8000` in this folder, then open http://localhost:8000.
