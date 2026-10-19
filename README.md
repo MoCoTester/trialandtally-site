@@ -18,7 +18,8 @@ no forms. Light and dark mode follow the device (`prefers-color-scheme`).
 | `/privacy` (linked from the app's Settings) | `/es/privacy` |
 | `/terms` | `/es/terms` |
 
-Plus `404.html` (bilingual), `styles.css`, `favicon.svg`, `CNAME`.
+Plus `404.html` (bilingual), `styles.css`, `CNAME`, and the app icon: `favicon-32.png` (32×32),
+`apple-touch-icon.png` (180×180, also the header logo), and `app-icon.png` (256×256, home page).
 `_config.yml` keeps this README and `_tools/` out of the published site.
 
 ## Before publishing
