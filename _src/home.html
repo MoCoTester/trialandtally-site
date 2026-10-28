@@ -1,0 +1,269 @@
+<section class="hero" aria-labelledby="hero-title">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <p class="hero-brand">
+        <span class="hero-icon" role="img" aria-label="{{icon_alt}}">
+          <img src="/assets/img/icon-base-192.webp" srcset="/assets/img/icon-base-192.webp 192w, /assets/img/icon-base-384.webp 384w" sizes="88px" width="88" height="88" alt="" decoding="async">
+          <svg viewBox="0 0 1024 1024" aria-hidden="true" focusable="false">
+            <rect class="bar bar-1" x="300" y="780" width="120" height="105" rx="27" fill="#C0272D"/>
+            <rect class="bar bar-2" x="452" y="715" width="120" height="170" rx="27" fill="#F6C323"/>
+            <rect class="bar bar-3" x="604" y="650" width="120" height="235" rx="27" fill="#2E9C4F"/>
+            <path class="check" d="M619 591 L656 622 L726 545" fill="none" stroke="#2E9C4F" stroke-width="26" stroke-linecap="round" stroke-linejoin="round" pathLength="1"/>
+          </svg>
+        </span>
+        <span class="hero-name">Trial&amp;Tally</span>
+      </p>
+      <h1 id="hero-title">{{hero_title}}</h1>
+      <p class="hero-lead">{{hero_lead}}</p>
+      {{store_badge_hero}}
+      <p class="price-line">{{price_line}}</p>
+      <p class="hero-try"><a href="#demo">{{hero_try}}</a></p>
+    </div>
+    <div class="hero-phone">
+      <div class="phone">
+        {{shot_hero}}
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section demo-section" id="demo" aria-labelledby="demo-title">
+  <div class="wrap demo-grid">
+    <div class="demo-intro">
+      <h2 id="demo-title">{{demo_title}}</h2>
+      <p>{{demo_intro}}</p>
+    </div>
+    <div class="demo" id="demo-app" data-lang="{{lang}}" aria-describedby="demo-note">
+      <script type="application/json" id="demo-data">{{demo_data}}</script>
+      <div class="demo-bar">
+        <button type="button" class="demo-undo" id="demo-undo" disabled>
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 14 4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>{{demo_undo}}</span>
+        </button>
+        <span class="demo-bar-title" aria-hidden="true">{{demo_session}}</span>
+        <span class="demo-bar-spacer" aria-hidden="true"></span>
+      </div>
+
+      <div class="demo-tabs" role="tablist" aria-label="{{demo_students}}">
+        <button type="button" role="tab" class="demo-tab tab-blue" id="demo-tab-0" data-student="0" aria-selected="true" aria-controls="demo-panel">
+          <svg class="tab-check" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="m7.5 12.5 3 3 6-6.5" fill="none" stroke="var(--tab-color)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span><span class="sr-only">{{demo_student}} </span>AB</span>
+        </button>
+        <button type="button" role="tab" class="demo-tab tab-purple" id="demo-tab-1" data-student="1" aria-selected="false" aria-controls="demo-panel" tabindex="-1">
+          <svg class="tab-check" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="m7.5 12.5 3 3 6-6.5" fill="none" stroke="var(--tab-color)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span><span class="sr-only">{{demo_student}} </span>CD</span>
+        </button>
+      </div>
+
+      <div class="goal-card" id="demo-panel" role="tabpanel" aria-labelledby="demo-tab-0">
+        <div class="goal-head">
+          <div>
+            <h3 class="goal-title" id="demo-goal-title">{{demo_goal_ab}}</h3>
+            <p class="goal-counts" id="demo-counts">{{demo_no_trials}}</p>
+          </div>
+          <p class="goal-pct" id="demo-pct"><span aria-hidden="true">–</span></p>
+        </div>
+
+        <div class="goal-step" data-step="main">
+          <button type="button" class="big big-correct" data-record="correct">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m4.5 12.5 5 5 10-11" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            {{demo_correct}}
+          </button>
+          <button type="button" class="big big-prompted" data-action="prompted" aria-describedby="demo-prompted-hint">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7.5 12.5V6.25a1.25 1.25 0 0 1 2.5 0V11.5M10 11.5V4.25a1.25 1.25 0 0 1 2.5 0v7.25M12.5 11.5V5.25a1.25 1.25 0 0 1 2.5 0v6.75M15 12V8.25a1.25 1.25 0 0 1 2.5 0v6.25A6.5 6.5 0 0 1 11 21h-.4a6 6 0 0 1-4.8-2.4L3.4 15.4a1.4 1.4 0 0 1 2.1-1.8l2 1.9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            {{demo_prompted}}
+          </button>
+          <span class="sr-only" id="demo-prompted-hint">{{demo_prompted_hint}}</span>
+          <button type="button" class="big big-incorrect" data-record="incorrect">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/></svg>
+            {{demo_incorrect}}
+          </button>
+        </div>
+
+        <div class="goal-step" data-step="choose" hidden>
+          <p class="step-label" id="demo-which">{{demo_which_prompt}}</p>
+          <div class="prompt-grid" role="group" aria-labelledby="demo-which">
+            {{demo_prompt_buttons}}
+          </div>
+          <div class="step-links">
+            <button type="button" class="link-btn" data-action="cancel">{{demo_cancel}}</button>
+          </div>
+        </div>
+
+        <div class="goal-step" data-step="result" hidden>
+          <p class="step-label">{{demo_prompted}}: <span id="demo-chosen"></span></p>
+          <div class="result-row">
+            <button type="button" class="big big-correct" data-record="promptedCorrect">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m4.5 12.5 5 5 10-11" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              {{demo_correct}}
+            </button>
+            <button type="button" class="big big-incorrect" data-record="promptedIncorrect">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/></svg>
+              {{demo_incorrect}}
+            </button>
+          </div>
+          <div class="step-links">
+            <button type="button" class="link-btn" data-action="change">‹ {{demo_change_prompt}}</button>
+            <button type="button" class="link-btn" data-action="cancel">{{demo_cancel}}</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="demo-actions">
+        <button type="button" class="btn btn-quiet" id="demo-summary-btn" data-action="summary" aria-expanded="false" aria-controls="demo-summary">{{demo_see_summary}}</button>
+        <button type="button" class="btn btn-clear" id="demo-clear">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7h16M9 7V4.5h6V7m-8.5 0 1 13h9l1-13M10 11v6m4-6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          {{demo_end_clear}}
+        </button>
+      </div>
+
+      <div class="demo-summary" id="demo-summary" hidden>
+        <h3 id="demo-summary-title" tabindex="-1">{{demo_summary_title}}</h3>
+        <p class="demo-empty" id="demo-summary-empty" hidden>{{demo_nothing_yet}}</p>
+        <pre id="demo-summary-text" aria-labelledby="demo-summary-title" tabindex="0"></pre>
+      </div>
+
+      <p class="sr-only" id="demo-live" aria-live="polite" aria-atomic="true"></p>
+
+      <dialog class="demo-dialog" id="demo-confirm" aria-labelledby="demo-confirm-title" aria-describedby="demo-confirm-text">
+        <h3 id="demo-confirm-title">{{demo_are_you_sure}}</h3>
+        <p id="demo-confirm-text">{{demo_confirm_text}}</p>
+        <form method="dialog" class="dialog-buttons">
+          <button type="submit" class="btn btn-quiet" value="cancel" autofocus>{{demo_cancel}}</button>
+          <button type="submit" class="btn btn-danger" value="clear">{{demo_end_clear}}</button>
+        </form>
+      </dialog>
+      <noscript><p class="demo-noscript">{{demo_noscript}}</p></noscript>
+    </div>
+    <div class="demo-more">
+      <ul class="demo-hints">
+        <li><span class="dot dot-green" aria-hidden="true"></span><span>{{demo_hint_correct}}</span></li>
+        <li><span class="dot dot-yellow" aria-hidden="true"></span><span>{{demo_hint_prompted}}</span></li>
+        <li><span class="dot dot-red" aria-hidden="true"></span><span>{{demo_hint_incorrect}}</span></li>
+      </ul>
+      <p class="demo-note" id="demo-note">{{demo_note}}</p>
+    </div>
+  </div>
+</section>
+
+<section class="section section-soft" id="how" aria-labelledby="how-title">
+  <div class="wrap">
+    <h2 id="how-title" class="section-title">{{how_title}}</h2>
+    <p class="section-lead">{{how_lead}}</p>
+    <div class="story" id="story">
+      <ol class="story-steps">
+        {{story_steps}}
+      </ol>
+      <div class="story-phone" aria-hidden="true">
+        <div class="phone">
+          <div class="stack">
+            {{story_phone_shots}}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="video" aria-labelledby="video-title">
+  <div class="wrap video-grid">
+    <div class="video-copy">
+      <h2 id="video-title">{{video_title}}</h2>
+      <p>{{video_intro}}</p>
+      <ol class="video-steps" id="video-desc">
+        {{video_steps}}
+      </ol>
+    </div>
+    <div class="video-frame">
+      <video id="preview-video" controls muted playsinline preload="none" width="590" height="1280" poster="/assets/img/poster-{{lang}}-600.webp" aria-label="{{video_label}}" aria-describedby="video-desc">
+        <source src="/assets/video/preview-{{lang}}.mp4" type="video/mp4">
+        <p>{{video_fallback}}</p>
+      </video>
+    </div>
+  </div>
+</section>
+
+<section class="section section-soft" id="calculator" aria-labelledby="calc-title">
+  <div class="wrap calc-grid">
+    <div>
+      <h2 id="calc-title">{{calc_title}}</h2>
+      <p>{{calc_intro}}</p>
+    </div>
+    <div class="calc" id="calc">
+      <div class="field">
+        <label for="calc-sessions">{{calc_sessions_label}}</label>
+        <input id="calc-sessions" name="sessions" type="number" inputmode="numeric" min="0" max="20" step="1" value="5">
+      </div>
+      <div class="field">
+        <label for="calc-minutes">{{calc_minutes_label}}</label>
+        <input id="calc-minutes" name="minutes" type="number" inputmode="decimal" min="0" max="30" step="0.5" value="2" aria-describedby="calc-minutes-hint">
+        <p class="hint" id="calc-minutes-hint">{{calc_minutes_hint}}</p>
+      </div>
+      <div class="calc-result" role="group" aria-labelledby="calc-result-title">
+        <p class="calc-result-title" id="calc-result-title">{{calc_your_estimate}}</p>
+        <output id="calc-output" for="calc-sessions calc-minutes" aria-live="polite">
+          <span class="calc-big" id="calc-week">{{calc_week_default}}</span>
+          <span class="calc-small" id="calc-year">{{calc_year_default}}</span>
+        </output>
+      </div>
+      <p class="hint calc-math">{{calc_math}}</p>
+    </div>
+  </div>
+</section>
+
+<section class="section privacy-section" id="privacy" aria-labelledby="privacy-title">
+  <div class="wrap">
+    <h2 id="privacy-title" class="section-title">{{privacy_title}}</h2>
+    <ul class="privacy-list">
+      {{privacy_items}}
+    </ul>
+    <p class="section-more"><a href="{{privacy_url}}">{{privacy_link}}</a></p>
+  </div>
+</section>
+
+<section class="section section-soft" id="made-by" aria-labelledby="maker-title">
+  <div class="wrap maker">
+    {{maker_photo}}
+    <div class="maker-copy">
+      <h2 id="maker-title">{{maker_title}}</h2>
+      <p>{{maker_text}}</p>
+      {{maker_quote}}
+    </div>
+  </div>
+</section>
+
+<section class="section" id="who" aria-labelledby="who-title">
+  <div class="wrap">
+    <h2 id="who-title" class="section-title">{{who_title}}</h2>
+    <ul class="who-list">
+      {{who_items}}
+    </ul>
+  </div>
+</section>
+
+<section class="section section-soft" id="pricing" aria-labelledby="pricing-title">
+  <div class="wrap pricing-grid">
+    <div class="price-card">
+      <h2 id="pricing-title">{{pricing_title}}</h2>
+      <p class="price-big">{{pricing_big}}</p>
+      <ul class="check-list">
+        {{pricing_items}}
+      </ul>
+    </div>
+    <div class="faq">
+      <h2 id="faq-title">{{faq_title}}</h2>
+      {{faq_items}}
+      <p class="section-more"><a href="{{support_url}}">{{faq_more}}</a></p>
+    </div>
+  </div>
+</section>
+
+<section class="section cta" id="get" aria-labelledby="cta-title">
+  <div class="wrap cta-inner">
+    <img class="cta-icon" src="/assets/img/icon-192.webp" srcset="/assets/img/icon-192.webp 192w, /assets/img/icon-384.webp 384w" sizes="80px" width="80" height="80" alt="" loading="lazy" decoding="async">
+    <h2 id="cta-title">{{cta_title}}</h2>
+    <p>{{cta_text}}</p>
+    {{store_badge_cta}}
+    <p class="price-line">{{price_line}}</p>
+  </div>
+</section>

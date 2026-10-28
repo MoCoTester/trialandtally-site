@@ -1,2 +1,6 @@
 .DS_Store
 _review/
+.venv/
+_tools/.cache/
+__pycache__/
+.pytest_cache/

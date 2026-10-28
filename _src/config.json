@@ -1,0 +1,15 @@
+{
+  "_comment": "Edit, then run: python3 _tools/build.py   (see README.md). appStoreURL empty = 'Coming soon to the App Store'.",
+  "appStoreURL": "",
+  "maker": {
+    "_comment": "Optional. Fill these in to show a name, photo and quote in 'Made by a school SLP' (see NEEDS-GABE.md).",
+    "name": "",
+    "role_en": "",
+    "role_es": "",
+    "photo": "",
+    "photo_alt_en": "",
+    "photo_alt_es": "",
+    "quote_en": "",
+    "quote_es": ""
+  }
+}

@@ -1,4 +1,8 @@
-# GitHub Pages: publish the plain HTML as-is, but not the repo notes or tools.
+# GitHub Pages: publish the plain HTML as-is, but not the repo notes, sources or tools.
+# (Folders starting with "_" such as _src and _tools are never published.)
 exclude:
   - README.md
-  - _tools
+  - DECISIONS.md
+  - NEEDS-GABE.md
+  - assets/img/badges/README.md
+  - .venv
