@@ -1,0 +1,5 @@
+# Dev/test tools only; never published. Installed into .venv by _tools/setup_dev.sh.
+playwright==1.60.0
+pytest>=8,<9
+Pillow>=11.3,<12
+imageio-ffmpeg>=0.6,<0.7
