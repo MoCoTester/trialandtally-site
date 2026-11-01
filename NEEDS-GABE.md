@@ -3,39 +3,26 @@
 Things Claude can't or shouldn't decide for the website. Paths are in this repo,
 `/Users/laurelhamby/Developer/trialandtally-site`.
 
-## 1. Review and approve the redesign (branch `redesign`)
-The live site (`main`) is unchanged. Preview the branch on your Mac:
-
-```
-cd /Users/laurelhamby/Developer/trialandtally-site
-git checkout redesign
-python3 _tools/devserver.py 8000
-```
-
-Open http://localhost:8000/ (and http://localhost:8000/es/). Review screenshots are in `_review/`
-after `.venv/bin/python _tools/make_review.py --screens`. Items marked (review) in `DECISIONS.md`
-are the judgment calls worth a look.
-
-To publish once approved:
-
-```
-git checkout main
-git merge --ff-only redesign
-git push
-```
-
-(or open a pull request from `redesign` on GitHub and merge it there). After it's live, paste
-https://trialandtally.com into a Facebook post draft or an iMessage to see the new link preview.
-Facebook caches previews; its Sharing Debugger can refresh it.
+## 1. Pinterest: verify the website claim (now)
+Pinterest: click Verify on the website claim (Settings → Claimed accounts) now that the tag is live.
+The tag (`<meta name="p:domain_verify" content="36a3571c000689612ba0c30f00166bbd"/>`) has been on
+https://trialandtally.com/ and /es/ since 2026-11-01; the value lives in `_src/config.json` →
+`pinterest_verify`. Don't remove it after verifying (Pinterest re-checks it).
 
 ## 2. When the app is on the App Store
-One line switches both "Coming soon to the App Store" spots (English and Spanish) to Apple's
-official badge linking to the app:
+Follow `/Users/laurelhamby/Developer/TrialAndTally/Marketing/LAUNCH-DAY.md` (steps 3 and 4 are the
+website). The one command:
 
 ```
-python3 _tools/set_app_store_url.py https://apps.apple.com/app/id6824064215
-python3 _tools/check_site.py && git commit -am "App Store link" && git push
+cd /Users/laurelhamby/Developer/trialandtally-site && python3 _tools/set_app_store_url.py https://apps.apple.com/app/id6824064215 && python3 _tools/check_site.py && git commit -am "App Store link" && git push
 ```
+
+It switches both "Coming soon to the App Store" spots (English and Spanish) to Apple's official
+badge linking to the app, and adds Safari's Smart App Banner to every page.
+
+## 2b. Google Search Console: submit the sitemap (any time)
+https://search.google.com/search-console → trialandtally.com → Sitemaps → type `sitemap.xml` →
+Submit. It's live at https://trialandtally.com/sitemap.xml (8 pages, English and Spanish).
 
 ## 3. "Made by a school SLP": name, photo and quote (optional, Laurel's call)
 The section shows a short paragraph without a name today. If Laurel wants to be named, fill in
