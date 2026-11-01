@@ -148,3 +148,97 @@ def test_home_copy_has_no_unbacked_claims():
         for banned in ("testimonial", "users love", "thousands", "5 stars", "5-star", "★", "saves you",
                        "save hours", "ahorra horas", "miles de", "#1", "best app", "la mejor app"):
             assert banned not in text, (lang, banned)
+
+
+# ---------------------------------------------------------------- launch prep: sitemap, robots, social, Pinterest
+
+SITE = "https://trialandtally.com"
+INDEXED = {"index.html": "/", "support/index.html": "/support/", "privacy/index.html": "/privacy/",
+           "terms/index.html": "/terms/", "es/index.html": "/es/", "es/support/index.html": "/es/support/",
+           "es/privacy/index.html": "/es/privacy/", "es/terms/index.html": "/es/terms/"}
+SOCIAL = {
+    "Instagram": "https://www.instagram.com/trialandtally/",
+    "Facebook": "https://www.facebook.com/trialandtally",
+    "TikTok": "https://www.tiktok.com/@trialandtally",
+    "YouTube": "https://www.youtube.com/@trialandtallyapp",
+    "Pinterest": "https://www.pinterest.com/trialandtally/",
+    "X": "https://x.com/trialandtally",
+    "Threads": "https://www.threads.net/@trialandtally",
+}
+PINTEREST_TAG = '<meta name="p:domain_verify" content="36a3571c000689612ba0c30f00166bbd"/>'
+
+
+def published(rel):
+    return open(os.path.join(ROOT, rel), encoding="utf-8").read()
+
+
+def test_sitemap_is_valid_xml_and_lists_every_page():
+    import xml.etree.ElementTree as ET
+    ns = {"s": "http://www.sitemaps.org/schemas/sitemap/0.9", "x": "http://www.w3.org/1999/xhtml"}
+    root = ET.fromstring(published("sitemap.xml").encode("utf-8"))  # raises if not well-formed
+    assert root.tag == "{%s}urlset" % ns["s"]
+    entries = {u.findtext("s:loc", namespaces=ns): {l.get("hreflang"): l.get("href") for l in u.findall("x:link", ns)}
+               for u in root.findall("s:url", ns)}
+    assert set(entries) == {SITE + path for path in INDEXED.values()}
+    assert SITE + "/404.html" not in entries
+    for rel, path in INDEXED.items():
+        en_path = path[3:] if path.startswith("/es/") else path
+        assert entries[SITE + path] == {"en": SITE + en_path, "es": SITE + "/es" + en_path, "x-default": SITE + en_path}
+        # Every page in the sitemap exists and isn't noindex.
+        assert "noindex" not in published(rel)
+    # Every published HTML page except the 404 is in the sitemap.
+    html_pages = set()
+    for d, dirs, files in os.walk(ROOT):
+        dirs[:] = [x for x in dirs if not x.startswith(("_", "."))]  # unpublished: _src, _tools, .venv...
+        html_pages |= {os.path.relpath(os.path.join(d, f), ROOT) for f in files if f.endswith(".html")}
+    assert html_pages - {"404.html"} == set(INDEXED)
+
+
+def test_robots_txt_points_to_sitemap():
+    lines = published("robots.txt").splitlines()
+    assert "Sitemap: https://trialandtally.com/sitemap.xml" in lines
+    assert "User-agent: *" in lines and "Disallow: /" not in lines
+
+
+def test_sitemap_and_robots_rebuild_with_the_pages():
+    pages = build.build()
+    assert pages["sitemap.xml"] == published("sitemap.xml")
+    assert pages["robots.txt"] == published("robots.txt")
+
+
+@pytest.mark.parametrize("rel,label,on", [
+    (rel, *(("Trial&amp;Tally en redes sociales", "Trial&amp;Tally en") if rel.startswith("es/")
+            else ("Trial&amp;Tally on social media", "Trial&amp;Tally on")))
+    for rel in list(INDEXED) + ["404.html"]])
+def test_footer_social_links(rel, label, on):
+    footer = re.search(r'<footer class="site-footer">.*?</footer>', published(rel), re.S).group(0)
+    social = re.search(r'<ul class="footer-social" aria-label="([^"]+)">(.*?)</ul>', footer, re.S)
+    assert social and social.group(1) == label
+    links = re.findall(r'<li><a href="([^"]+)" rel="me"><svg ([^>]+)><path d="[^"]+"/></svg>'
+                       r'<span class="sr-only">([^<]+)</span></a></li>', social.group(2))
+    assert [(href, name) for href, _, name in links] == [(url, f"{on} {n}") for n, url in SOCIAL.items()]
+    for _, svg_attrs, _ in links:
+        assert 'aria-hidden="true"' in svg_attrs and 'focusable="false"' in svg_attrs
+    assert "target=" not in social.group(2)
+
+
+def test_pinterest_tag_on_home_pages_only():
+    assert build.load_config()["pinterest_verify"] == "36a3571c000689612ba0c30f00166bbd"
+    for rel in INDEXED:
+        html = published(rel)
+        head = html[:html.index("</head>")]
+        if rel in ("index.html", "es/index.html"):
+            assert head.count(PINTEREST_TAG) == 1, rel
+        else:
+            assert "p:domain_verify" not in html, rel
+
+
+def test_smart_app_banner_switches_with_the_app_store_url():
+    """Safari's Smart App Banner (Apple's own, no request to another site) appears on every indexed
+    page once appStoreURL is set, with the ID taken from the URL; never before launch."""
+    for rel, html in build.build(config_with(appStoreURL="")).items():
+        assert "apple-itunes-app" not in html, rel
+    pages = build.build(config_with(appStoreURL="https://apps.apple.com/app/id6824064215"))
+    for rel in INDEXED:
+        assert pages[rel].count('<meta name="apple-itunes-app" content="app-id=6824064215">') == 1, rel
+    assert "apple-itunes-app" not in pages["404.html"]

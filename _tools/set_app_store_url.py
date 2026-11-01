@@ -4,7 +4,10 @@
   python3 _tools/set_app_store_url.py https://apps.apple.com/app/id6824064215   # app is live
   python3 _tools/set_app_store_url.py --coming-soon                             # back to "Coming soon"
 
-Sets "appStoreURL" in _src/config.json (the one place the link lives), then rebuilds the pages.
+Sets "appStoreURL" in _src/config.json (the one place the link lives), then rebuilds the pages. That
+switches everything that changes at launch: both calls to action on the English and Spanish home
+pages become Apple's badge linking to the app, and every indexed page gets Safari's Smart App Banner
+(<meta name="apple-itunes-app">). The footer, sitemap, robots.txt and Pinterest tag don't change.
 Then check, commit and push: python3 _tools/check_site.py && git commit -am "App Store link" && git push
 """
 import json

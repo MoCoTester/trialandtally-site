@@ -2,15 +2,18 @@
 """Builds the published HTML pages from _src/. Standard library only: python3 _tools/build.py
 
 Sources (edit these, not the generated pages):
-  _src/config.json           appStoreURL (the ONE place for the App Store link) and the optional
+  _src/config.json           appStoreURL (the ONE place for the App Store link), the Pinterest
+                             domain-claim code, the footer's social links and the optional
                              "Made by a school SLP" name/photo/quote
+  _src/social-icons.json     the footer's social icons (SVG paths)
   _src/home.html             home page body, with {{key}} placeholders
   _src/strings/{en,es}.json  home page wording
   _src/pages/{en,es}/*.html  Support, Privacy and Terms content (unchanged from the old site)
   _src/pages/404.html        the bilingual 404 page
 
 Writes: index.html, es/index.html, support/, privacy/, terms/, es/support/, es/privacy/,
-es/terms/ (each folder/index.html) and 404.html.
+es/terms/ (each folder/index.html), 404.html, sitemap.xml (every English and Spanish page, with
+hreflang alternates) and robots.txt (points to the sitemap).
 
   python3 _tools/build.py            write the pages
   python3 _tools/build.py --check    exit 1 if any page is out of date (used by the tests)
@@ -41,6 +44,7 @@ CHROME = {
         "footer_promise": "No accounts. No tracking. No cookies. Nothing kept after End &amp; Clear.",
         "contact": "Contact", "locale": "en_US", "other_locale": "es_MX",
         "footer_nav": "Footer",
+        "social_label": "Trial&amp;Tally on social media", "social_on": "Trial&amp;Tally on {name}",
     },
     "es": {
         "skip": "Ir al contenido principal",
@@ -51,6 +55,7 @@ CHROME = {
         "footer_promise": "Sin cuentas. Sin rastreo. Sin cookies. Nada se guarda después de Terminar y borrar.",
         "contact": "Contacto", "locale": "es_MX", "other_locale": "en_US",
         "footer_nav": "Pie de página",
+        "social_label": "Trial&amp;Tally en redes sociales", "social_on": "Trial&amp;Tally en {name}",
     },
 }
 
@@ -61,6 +66,9 @@ PAGES = [
     ("privacy", "/privacy/", "/es/privacy/"),
     ("terms", "/terms/", "/es/terms/"),
 ]
+# Footer social links: config.json key -> name shown to screen readers ("Trial&Tally on Instagram").
+SOCIAL_NAMES = {"instagram": "Instagram", "facebook": "Facebook", "tiktok": "TikTok", "youtube": "YouTube",
+                "pinterest": "Pinterest", "x": "X", "threads": "Threads"}
 SUBPAGE_META = {
     "en": {
         "support": ("Support · Trial&amp;Tally", "Trial&amp;Tally support: frequently asked questions and contact."),
@@ -82,6 +90,24 @@ def read(*parts):
 
 def load_config():
     return json.loads(read(SRC, "config.json"))
+
+
+def app_store_id(config):
+    """The numeric App Store ID from appStoreURL (the digits after "/id"), or None while it's empty."""
+    m = re.search(r"/id(\d+)", config.get("appStoreURL", ""))
+    return m.group(1) if m else None
+
+
+def head_extras(config, home=False):
+    """<head> tags that depend on config.json: Safari's Smart App Banner once the app is live (every
+    indexed page), and Pinterest's domain-claim tag (home pages only)."""
+    lines = []
+    app_id = app_store_id(config)
+    if app_id:
+        lines.append(f'  <meta name="apple-itunes-app" content="app-id={app_id}">')
+    if home and config.get("pinterest_verify"):
+        lines.append(f'  <meta name="p:domain_verify" content="{html.escape(config["pinterest_verify"])}"/>')
+    return lines
 
 
 def asset_version(rel):
@@ -210,7 +236,7 @@ def home_context(lang, config):
 
 # ---------------------------------------------------------------- page shell
 
-def head(lang, title, description, path, alt_paths, t_share, noindex=False, preload=""):
+def head(lang, title, description, path, alt_paths, t_share, noindex=False, preload="", extras=()):
     c = CHROME[lang]
     css = "assets/site.css"
     lines = [
@@ -225,6 +251,7 @@ def head(lang, title, description, path, alt_paths, t_share, noindex=False, prel
         '  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">',
         '  <meta name="theme-color" content="#0f1724" media="(prefers-color-scheme: dark)">',
         '  <meta name="referrer" content="no-referrer">',
+        *extras,
     ]
     if noindex:
         lines.append('  <meta name="robots" content="noindex">')
@@ -304,7 +331,28 @@ def header(lang, current, other_path):
   </header>"""
 
 
-def footer(lang, other_path):
+def social_links(lang, config):
+    c = CHROME[lang]
+    icons = json.loads(read(SRC, "social-icons.json"))
+    items = []
+    for key, name in SOCIAL_NAMES.items():
+        url = config.get("social", {}).get(key)
+        if not url:
+            continue
+        items.append(
+            f'<li><a href="{html.escape(url)}" rel="me">'
+            f'<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="{icons[key]}"/></svg>'
+            f'<span class="sr-only">{c["social_on"].replace("{name}", name)}</span></a></li>')
+    if not items:
+        return ""
+    inner = "\n          ".join(items)
+    return f"""
+        <ul class="footer-social" aria-label="{c["social_label"]}">
+          {inner}
+        </ul>"""
+
+
+def footer(lang, other_path, config):
     c = CHROME[lang]
     prefix = "/es" if lang == "es" else ""
     other = "en" if lang == "es" else "es"
@@ -312,7 +360,7 @@ def footer(lang, other_path):
     <div class="wrap footer-grid">
       <div>
         <p class="footer-brand"><img src="/apple-touch-icon.png" alt="" width="28" height="28" loading="lazy"> Trial&amp;Tally</p>
-        <p>{c["footer_promise"]}</p>
+        <p>{c["footer_promise"]}</p>{social_links(lang, config)}
       </div>
       <nav aria-label="{c["footer_nav"]}">
         <ul class="footer-links">
@@ -327,17 +375,18 @@ def footer(lang, other_path):
   </footer>"""
 
 
-def page(lang, key, title, description, main_html, paths, t_share, scripts="", main_class="", preload=""):
+def page(lang, key, title, description, main_html, paths, t_share, config, scripts="", main_class="", preload=""):
     path = paths[0] if lang == "en" else paths[1]
     other_path = paths[1] if lang == "en" else paths[0]
     cls = f' class="{main_class}"' if main_class else ""
     return "\n".join([
-        head(lang, title, description, path, paths, t_share, preload=preload),
+        head(lang, title, description, path, paths, t_share, preload=preload,
+             extras=head_extras(config, home=key == "home")),
         header(lang, key, other_path),
         f'  <main id="main"{cls}>',
         main_html.rstrip(),
         "  </main>",
-        footer(lang, other_path),
+        footer(lang, other_path, config),
         scripts,
         "</body>",
         "</html>",
@@ -357,22 +406,41 @@ def build(config=None):
         js = "assets/js/site.js"
         scripts = f'  <script type="module" src="/{js}?v={asset_version(js)}"></script>'
         rel = "index.html" if lang == "en" else "es/index.html"
-        out[rel] = page(lang, "home", t["meta_title"], t["meta_description"], body, PAGES[0][1:], share,
+        out[rel] = page(lang, "home", t["meta_title"], t["meta_description"], body, PAGES[0][1:], share, config,
                         scripts=scripts, main_class="home")
         for key, en_path, es_path in PAGES[1:]:
             title, desc = SUBPAGE_META[lang][key]
             content = read(SRC, "pages", lang, f"{key}.html")
             main = '    <div class="wrap prose">\n' + indent(content, 6) + "    </div>"
             rel = (f"{key}/index.html" if lang == "en" else f"es/{key}/index.html")
-            out[rel] = page(lang, key, title, desc, main, (en_path, es_path), share)
+            out[rel] = page(lang, key, title, desc, main, (en_path, es_path), share, config)
     # 404: bilingual, English shell, not indexed.
     content = read(SRC, "pages", "404.html")
     main = '    <div class="wrap prose">\n' + indent(content, 6) + "    </div>"
     out["404.html"] = "\n".join([
         head("en", "Page not found · Trial&amp;Tally", "This page doesn't exist.", "/404.html", None, None, noindex=True),
         header("en", "404", "/es/"),
-        '  <main id="main">', main, "  </main>", footer("en", "/es/"), "</body>", "</html>", GENERATED, ""])
+        '  <main id="main">', main, "  </main>", footer("en", "/es/", config), "</body>", "</html>", GENERATED, ""])
+    out["sitemap.xml"] = sitemap()
+    out["robots.txt"] = f"# Generated by _tools/build.py.\nUser-agent: *\nAllow: /\n\nSitemap: {SITE}/sitemap.xml\n"
     return out
+
+
+def sitemap():
+    """Every English and Spanish page, each listing both language versions (hreflang alternates,
+    the same pairs as the pages' <link rel="alternate"> tags). No lastmod, so the build is stable."""
+    lines = ['<?xml version="1.0" encoding="UTF-8"?>',
+             '<!-- Generated by _tools/build.py. -->',
+             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">']
+    for _, en_path, es_path in PAGES:
+        for path in (en_path, es_path):
+            lines += ["  <url>", f"    <loc>{SITE}{path}</loc>",
+                      f'    <xhtml:link rel="alternate" hreflang="en" href="{SITE}{en_path}"/>',
+                      f'    <xhtml:link rel="alternate" hreflang="es" href="{SITE}{es_path}"/>',
+                      f'    <xhtml:link rel="alternate" hreflang="x-default" href="{SITE}{en_path}"/>',
+                      "  </url>"]
+    lines += ["</urlset>", ""]
+    return "\n".join(lines)
 
 
 def indent(text, n):

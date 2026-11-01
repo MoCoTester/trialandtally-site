@@ -409,3 +409,23 @@ def test_live_region_and_names(open_page, lang):
     assert len(alts) == 5 and all(len(a) > 30 for a in alts)
     assert page.locator(".story-phone").get_attribute("aria-hidden") == "true"
     assert external_requests(page) == []
+
+
+@pytest.mark.parametrize("path,on", [("/", "Trial&Tally on"), ("/es/", "Trial&Tally en"),
+                                     ("/support/", "Trial&Tally on"), ("/es/privacy/", "Trial&Tally en")])
+def test_footer_social_links_accessible_names(open_page, path, on):
+    """The icon-only social links have accessible names in the page's language, are keyboard
+    focusable, show their icon (not an empty box), and opening the page requests nothing from them."""
+    page = open_page(path)
+    footer = page.locator("footer")
+    for name, host in (("Instagram", "www.instagram.com"), ("Facebook", "www.facebook.com"), ("TikTok", "www.tiktok.com"),
+                       ("YouTube", "www.youtube.com"), ("Pinterest", "www.pinterest.com"), ("X", "x.com"),
+                       ("Threads", "www.threads.net")):
+        link = footer.get_by_role("link", name=f"{on} {name}", exact=True)
+        expect(link).to_have_count(1)
+        assert f"//{host}/" in link.get_attribute("href")
+        box = link.locator("svg").bounding_box()
+        assert box and box["width"] >= 20 and box["height"] >= 20
+        link.focus()
+        assert page.evaluate("document.activeElement.getAttribute('href')") == link.get_attribute("href")
+    assert_clean(page)

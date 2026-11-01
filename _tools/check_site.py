@@ -10,12 +10,15 @@ For every published page in both languages:
   canonical, hreflang en/es/x-default pairs that point at each other, Open Graph and Twitter tags
   whose share image exists and is 1200x630
 - nothing loads from another site: every resource URL in HTML and CSS is local; links to other
-  sites only to mailto: and the App Store; no cookies/storage/network APIs in JS; no inline JS
+  sites only to mailto:, the App Store and the footer's social accounts; no cookies/storage/network
+  APIs in JS; no inline JS
+- sitemap.xml is valid XML and lists every indexed page with its hreflang pair; robots.txt points to it
 - page weight budget (home page, everything except the video) and CNAME intact
 - the pages are up to date with _src/ (python3 _tools/build.py --check)
 """
 import os
 import re
+import xml.etree.ElementTree as ET
 import struct
 import subprocess
 import sys
@@ -24,7 +27,9 @@ from urllib.parse import urlsplit
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SITE_HOST = "trialandtally.com"
-LINK_ONLY_HOSTS = {"apps.apple.com"}  # may be linked (<a href>), never loaded
+# May be linked (<a href>), never loaded: the App Store and the footer's social accounts.
+LINK_ONLY_HOSTS = {"apps.apple.com", "www.instagram.com", "www.facebook.com", "www.tiktok.com",
+                   "www.youtube.com", "www.pinterest.com", "x.com", "www.threads.net"}
 SKIP_DIRS = {".git", "_tools", "_src", "_review", ".venv", "node_modules"}
 HOME_BUDGET = 400 * 1024  # bytes, before the video (uncompressed; GitHub Pages also gzips text)
 REQUIRED_PAGES = ["index.html", "support/index.html", "privacy/index.html", "terms/index.html",
@@ -169,6 +174,43 @@ def page_weight(rel):
             if target.endswith(".js"):
                 queue += module_imports(target)
     return total
+
+
+def page_url(rel):
+    return f"https://{SITE_HOST}/" + (rel[:-len("index.html")] if rel.endswith("index.html") else rel)
+
+
+def check_sitemap(english, spanish):
+    errors = []
+    path = os.path.join(ROOT, "sitemap.xml")
+    if not os.path.isfile(path):
+        return ["missing sitemap.xml"]
+    try:
+        tree = ET.parse(path)
+    except ET.ParseError as e:
+        return [f"sitemap.xml is not valid XML: {e}"]
+    ns = {"s": "http://www.sitemaps.org/schemas/sitemap/0.9", "x": "http://www.w3.org/1999/xhtml"}
+    if tree.getroot().tag != "{%s}urlset" % ns["s"]:
+        errors.append("sitemap.xml: root element should be a sitemaps.org <urlset>")
+    listed = {}
+    for url in tree.getroot().findall("s:url", ns):
+        loc = url.findtext("s:loc", namespaces=ns)
+        listed[loc] = {link.get("hreflang"): link.get("href") for link in url.findall("x:link", ns)}
+    expected = {page_url(f) for f in english + spanish}
+    if set(listed) != expected:
+        errors.append(f"sitemap.xml should list exactly the indexed pages; missing {sorted(expected - set(listed))}, "
+                      f"extra {sorted(set(listed) - expected)}")
+    for f in english:
+        en, es = page_url(f), page_url("es/" + f)
+        for loc in (en, es):
+            if loc in listed and listed[loc] != {"en": en, "es": es, "x-default": en}:
+                errors.append(f"sitemap.xml: hreflang alternates for {loc} should be {en} / {es}")
+    robots = os.path.join(ROOT, "robots.txt")
+    if not os.path.isfile(robots):
+        errors.append("missing robots.txt")
+    elif f"Sitemap: https://{SITE_HOST}/sitemap.xml" not in open(robots, encoding="utf-8").read().splitlines():
+        errors.append("robots.txt should contain 'Sitemap: https://trialandtally.com/sitemap.xml'")
+    return errors
 
 
 def main():
@@ -339,6 +381,9 @@ def main():
             for pattern in FORBIDDEN_JS:
                 if re.search(pattern, code):
                     errors.append(f"{f}: forbidden in site JS: {pattern}")
+
+    # sitemap.xml and robots.txt
+    errors += check_sitemap(english, spanish)
 
     # Weight budget (home pages).
     weights = {}

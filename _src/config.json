@@ -1,6 +1,17 @@
 {
   "_comment": "Edit, then run: python3 _tools/build.py   (see README.md). appStoreURL empty = 'Coming soon to the App Store'.",
   "appStoreURL": "",
+  "pinterest_verify": "36a3571c000689612ba0c30f00166bbd",
+  "social": {
+    "_comment": "Footer social links, in this order. Icons are in _src/social-icons.json.",
+    "instagram": "https://www.instagram.com/trialandtally/",
+    "facebook": "https://www.facebook.com/trialandtally",
+    "tiktok": "https://www.tiktok.com/@trialandtally",
+    "youtube": "https://www.youtube.com/@trialandtallyapp",
+    "pinterest": "https://www.pinterest.com/trialandtally/",
+    "x": "https://x.com/trialandtally",
+    "threads": "https://www.threads.net/@trialandtally"
+  },
   "maker": {
     "_comment": "Optional. Fill these in to show a name, photo and quote in 'Made by a school SLP' (see NEEDS-GABE.md).",
     "name": "",
